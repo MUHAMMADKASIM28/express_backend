@@ -1,11 +1,11 @@
-const UserModel = require('../models/users')
+const ProductModel = require('../models/product')
 
-const getAllUsers = async (req, res) => {
+const getAllProduct = async (req, res) => {
     try {
-        const [data] = await UserModel.getAllUsers();
+        const [data] = await ProductModel.getAllProduct();
 
         res.json({
-            message: 'GET all user succes',
+            message: 'GET all product succes',
             data: data
         })
     } catch (error) {
@@ -16,13 +16,13 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-const createNewUser = async (req, res) => {
+const createNewProduct = async (req, res) => {
     const {body} = req;
 
     try {
-        await UserModel.createNewUser(body);
+        await ProductModel.createNewProduct(body);
         res.status(201).json({
-            message: 'CREATE new user succes',
+            message: 'CREATE new product succes',
             data: body
         })
     } catch (error) {
@@ -33,15 +33,15 @@ const createNewUser = async (req, res) => {
     }
 }
 
-const updateUser = async (req, res) => {
-    const {idUser} = req.params
+const updateProduct = async (req, res) => {
+    const {idProduct} = req.params
     const {body} = req;
     try {
-        await UserModel.updateUser(body, idUser);
+        await ProductModel.updateProduct(body, idProduct);
         res.status(201).json({
-            message: 'UPDATE user succes',
+            message: 'UPDATE product succes',
             data: {
-                id: idUser, 
+                id: idProduct, 
                 ...body
             },
         })
@@ -53,12 +53,12 @@ const updateUser = async (req, res) => {
     }
 }
 
-const deleteUser = async (req, res) => {
-    const {idUser} = req.params;
+const deleteProduct = async (req, res) => {
+    const {idProduct} = req.params;
     try {
-        await UserModel.deleteUser(idUser);   
+        await ProductModel.deleteProduct(idProduct);   
         res.json({
-            message: 'DELETE user succes',
+            message: 'DELETE product succes',
             data: null
         }) 
     } catch (error) {
@@ -71,8 +71,8 @@ const deleteUser = async (req, res) => {
 }
 
 module.exports = {
-    getAllUsers,
-    createNewUser,
-    updateUser,
-    deleteUser,
+    getAllProduct,
+    createNewProduct,
+    updateProduct,
+    deleteProduct,
 }
