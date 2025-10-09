@@ -73,7 +73,6 @@ const register = async (req, res) => {
     }
 }
 
-// Fungsi Login
 const login = async (req, res) => {
     const { username, password } = req.body;
 
@@ -90,7 +89,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ id: user.id, username: user.username, role: user.role.trim() }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         });
 

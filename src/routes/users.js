@@ -2,30 +2,32 @@ const express = require('express');
 
 const UserController = require('../controller/users.js');
 const verifyToken = require('../middleware/auth.js'); 
+const authorize = require('../middleware/authorize.js');
 
 const router = express.Router()
 
-// READ DATA - GET
-router.get('/', verifyToken, UserController.getAllUsers);
-router.get('/:idUser', verifyToken, UserController.getUserById);
+// LIHAT/TAMPILKAN USER
+router.get('/', verifyToken, authorize('admin'), UserController.getAllUsers);
+router.get('/:idUser', verifyToken, authorize('admin'), UserController.getUserById);
 
-// Rute Register
+// REGISTER USER
 router.post('/register', UserController.register);
 
-// Rute Login
+// LOGIN USER
 router.post('/login', UserController.login);
 
-// CREATE DATA - POST 
-router.post('/', UserController.createNewUser);
-
-// UPDATE DATA - PUT
-router.put('/:idUser', verifyToken, UserController.updateUser);
-
-// DELETE DATA - DELETE
-router.delete('/:idUser', verifyToken, UserController.deleteUser);
-
-// Rute Logout
+// LOGOUT USER
 router.post('/logout', verifyToken, UserController.logout);
+
+// // CREATE DATA - POST 
+// router.post('/', UserController.createNewUser);
+
+// EDIT USER
+router.put('/:idUser', verifyToken, authorize('admin'), UserController.updateUser);
+
+// DELETE USER
+router.delete('/:idUser', verifyToken, authorize('admin'), UserController.deleteUser);
+
 
 
 
