@@ -7,6 +7,7 @@ const router = express.Router()
 
 // READ DATA - GET
 router.get('/', verifyToken, UserController.getAllUsers);
+router.get('/:idUser', verifyToken, UserController.getUserById);
 
 // Rute Register
 router.post('/register', UserController.register);

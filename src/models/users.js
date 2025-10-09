@@ -7,6 +7,11 @@ const getAllUsers = () => {
     return dbpool.execute(SQLQuery);
 }
 
+const getUserById = (idUser) => {
+    const SQLQuery = `SELECT * FROM users WHERE id=${idUser}`;
+    return dbpool.execute(SQLQuery);
+}
+
 const findUserByUsername = (username) => {
     const SQLQuery = `SELECT * FROM users WHERE username = '${username}'`;
     return dbpool.execute(SQLQuery);
@@ -37,6 +42,7 @@ const deleteUser = (idUser) => {
 
 module.exports = {
     getAllUsers,
+    getUserById,
     createNewUser,
     updateUser,
     deleteUser,

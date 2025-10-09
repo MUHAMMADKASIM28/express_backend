@@ -18,6 +18,29 @@ const getAllUsers = async (req, res) => {
     }
 }
 
+const getUserById = async (req, res) => {
+    const { idUser } = req.params;
+    try {
+        const [data] = await UserModel.getUserById(idUser);
+
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'User not found',
+            });
+        }
+
+        res.json({
+            message: 'GET user success',
+            data: data[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error,
+        })
+    }
+}
+
 const createNewUser = async (req, res) => {
     res.status(404).json({
         message: 'Please use /register to create a new user'
@@ -130,6 +153,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
     getAllUsers,
+    getUserById,
     createNewUser,
     updateUser,
     deleteUser,

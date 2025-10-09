@@ -16,6 +16,29 @@ const getAllProduct = async (req, res) => {
     }
 }
 
+const getProductById = async (req, res) => {
+    const { idProduct } = req.params;
+    try {
+        const [data] = await ProductModel.getProductById(idProduct);
+
+        if (data.length === 0) {
+            return res.status(404).json({
+                message: 'Product not found',
+            });
+        }
+
+        res.json({
+            message: 'GET product success',
+            data: data[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error,
+        })
+    }
+}
+
 const createNewProduct = async (req, res) => {
     const {body} = req;
 
@@ -72,6 +95,7 @@ const deleteProduct = async (req, res) => {
 
 module.exports = {
     getAllProduct,
+    getProductById,
     createNewProduct,
     updateProduct,
     deleteProduct,

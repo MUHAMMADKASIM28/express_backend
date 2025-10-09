@@ -6,6 +6,11 @@ const getAllProduct = () => {
     return dbpool.execute(SQLQuery);
 }
 
+const getProductById = (idProduct) => {
+    const SQLQuery = `SELECT * FROM product WHERE id=${idProduct}`;
+    return dbpool.execute(SQLQuery);
+}
+
 const createNewProduct = async (body) => {
     const SQLQuery = `INSERT INTO product (name, price, description) 
                       VALUES ('${body.name}', ${body.price}, '${body.description}')`;
@@ -29,6 +34,7 @@ const deleteProduct = (idProduct) => {
 
 module.exports = {
     getAllProduct,
+    getProductById,
     createNewProduct,
     updateProduct,
     deleteProduct,
