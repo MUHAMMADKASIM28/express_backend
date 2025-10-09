@@ -23,6 +23,9 @@ router.put('/:idUser', verifyToken, UserController.updateUser);
 // DELETE DATA - DELETE
 router.delete('/:idUser', verifyToken, UserController.deleteUser);
 
+// Rute Logout
+router.post('/logout', verifyToken, UserController.logout);
+
 
 
 module.exports = router;

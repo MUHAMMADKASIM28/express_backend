@@ -84,6 +84,12 @@ const login = async (req, res) => {
     }
 }
 
+const logout = (req, res) => {
+    res.status(200).json({
+        message: 'Logout successful. Please clear the token on the client-side.'
+    });
+};
+
 
 const updateUser = async (req, res) => {
     const { idUser } = req.params
@@ -129,4 +135,5 @@ module.exports = {
     deleteUser,
     register,
     login,
+    logout,
 }
