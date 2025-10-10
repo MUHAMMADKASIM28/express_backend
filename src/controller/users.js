@@ -50,13 +50,27 @@ const createNewUser = async (req, res) => {
 const register = async (req, res) => {
     const { body } = req;
 
-    if (!body.username || !body.password) {
+    if (!body.username || !body.password || !body.email) {
         return res.status(400).json({
-            message: 'Username and password are required'
-        })
+            message: 'Username, password, and email are required'
+        });
     }
 
     try {
+        const [existingUsername] = await UserModel.findUserByUsername(body.username);
+        if (existingUsername.length > 0) {
+            return res.status(409).json({
+                message: 'Username is already taken. Please use another username.'
+            });
+        }
+
+        const [existingEmail] = await UserModel.findUserByEmail(body.email);
+        if (existingEmail.length > 0) {
+            return res.status(409).json({
+                message: 'Email is already registered. Please use another email.'
+            });
+        }
+
         await UserModel.createNewUser(body);
         res.status(201).json({
             message: 'CREATE new user succes',
@@ -64,12 +78,12 @@ const register = async (req, res) => {
                 username: body.username,
                 email: body.email
             }
-        })
+        });
     } catch (error) {
         res.status(500).json({
             message: 'Server Error',
             serverMessage: error.message,
-        })
+        });
     }
 }
 
@@ -112,24 +126,32 @@ const logout = (req, res) => {
     });
 };
 
-
 const updateUser = async (req, res) => {
-    const { idUser } = req.params
+    const { idUser } = req.params;
     const { body } = req;
+
     try {
+        if (body.password) {
+            const hashedPassword = await bcrypt.hash(body.password, 10);
+            body.password = hashedPassword;
+        }
         await UserModel.updateUser(body, idUser);
+
+        const responseData = { ...body };
+        delete responseData.password;
+
         res.status(201).json({
-            message: 'UPDATE user succes',
+            message: 'UPDATE user success',
             data: {
                 id: idUser,
-                ...body
+                ...responseData
             },
-        })
+        });
     } catch (error) {
         res.status(500).json({
             message: 'Server Error',
-            serverMessage: error,
-        })
+            serverMessage: error.message,
+        });
     }
 }
 
