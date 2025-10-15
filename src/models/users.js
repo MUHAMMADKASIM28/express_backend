@@ -1,15 +1,26 @@
 const dbpool = require('../config/database');
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 const getAllUsers = () => {
-    // Hapus 'address' dari query SELECT
-    const SQLQuery = 'SELECT id, name, username, password, role, email FROM users';
+    const SQLQuery = 'SELECT id, name, username, password, email, role_id FROM users';
     return dbpool.execute(SQLQuery);
 }
 
 const findUserByUsername = (username) => {
-    const SQLQuery = `SELECT * FROM users WHERE username = '${username}'`;
-    return dbpool.execute(SQLQuery);
+    const SQLQuery = `
+        SELECT 
+            u.id, u.username, u.password,
+            r.name as role,
+            (SELECT GROUP_CONCAT(p.name) 
+             FROM role_permissions rp 
+             JOIN permissions p ON rp.permission_id = p.id 
+             WHERE rp.role_id = u.role_id) as permissions
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        WHERE u.username = ?;
+    `;
+    return dbpool.execute(SQLQuery, [username]); 
 }
 
 const findUserByEmail = (email) => {
@@ -19,32 +30,36 @@ const findUserByEmail = (email) => {
 
 const createNewUser = async (body) => {
     const hashedPassword = await bcrypt.hash(body.password, 10);
-    const SQLQuery = `INSERT INTO users (name, username, password, email) 
-                      VALUES ('${body.name}', '${body.username}', '${hashedPassword}', '${body.email}')`;
+    const id = uuidv4(); 
+    const SQLQuery = `INSERT INTO users (id, name, username, password, email, role_id)
+                      VALUES ('${id}', '${body.name}', '${body.username}', '${hashedPassword}', '${body.email}', 2)`; 
     return dbpool.execute(SQLQuery);
 }
 
-const updateUser = (body, idUser) => {
+const updateUser = (body, userId) => {
     let setClauses = [];
     if (body.name) setClauses.push(`name='${body.name}'`);
     if (body.username) setClauses.push(`username='${body.username}'`);
     if (body.email) setClauses.push(`email='${body.email}'`);
-    if (body.password) setClauses.push(`password='${body.password}'`); // 'password' di sini sudah di-hash dari controller
+    // Hanya tambahkan password ke query jika memang ada
+    if (body.password) setClauses.push(`password='${body.password}'`);
 
     const setQuery = setClauses.join(', ');
 
     if (setQuery.length === 0) {
         return Promise.resolve(); 
     }
+
     const SQLQuery = `UPDATE users 
                       SET ${setQuery}
-                      WHERE id=${idUser}`;
+                      WHERE id='${userId}'`;
 
     return dbpool.execute(SQLQuery);
 }
 
-const deleteUser = (idUser) => {
-    const SQLQuery = `DELETE FROM users WHERE id=${idUser}`;
+const deleteUser = (userId) => {
+    const SQLQuery = `DELETE FROM users WHERE id='${userId}'`; 
+
     return dbpool.execute(SQLQuery);
 }
 

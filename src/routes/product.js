@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const ProductController = require('../controller/product');
-const verifyToken = require('../middleware/auth.js'); 
-const authorize = require('../middleware/authorize.js');
+const isAuthenticated = require('../middleware/auth.js'); 
+const can = require('../middleware/can');
 
 // LIHAT/TAMPILKAN PRODUK
-router.get('/', verifyToken, authorize(['admin', 'user']), ProductController.getAllProduct);
-router.get('/:idProduct', verifyToken, authorize(['admin', 'user']), ProductController.getProductById);
+router.get('/', isAuthenticated, can('view-products'), ProductController.getAllProduct);
+router.get('/:productId', isAuthenticated, can('view-products'), ProductController.getProductById);
 
 // TAMBAH PRODUK
-router.post('/', verifyToken, authorize('admin'), ProductController.createNewProduct);
+router.post('/', isAuthenticated, can('create-product'), ProductController.createNewProduct);
 
 // EDIT PRODUK
-router.put('/:idProduct', verifyToken, authorize('admin'), ProductController.updateProduct);
+router.put('/:productId', isAuthenticated, can('edit-product'), ProductController.updateProduct);
 
 // HAPUS PRODUK
-router.delete('/:idProduct', verifyToken, authorize('admin'), ProductController.deleteProduct);
+router.delete('/:productId', isAuthenticated, can('delete-product'), ProductController.deleteProduct);
 
 module.exports = router;

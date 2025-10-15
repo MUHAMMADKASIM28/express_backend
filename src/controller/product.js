@@ -17,9 +17,9 @@ const getAllProduct = async (req, res) => {
 }
 
 const getProductById = async (req, res) => {
-    const { idProduct } = req.params;
+    const { productId } = req.params;
     try {
-        const [data] = await ProductModel.getProductById(idProduct);
+        const [data] = await ProductModel.getProductById(productId);
 
         if (data.length === 0) {
             return res.status(404).json({
@@ -57,14 +57,14 @@ const createNewProduct = async (req, res) => {
 }
 
 const updateProduct = async (req, res) => {
-    const {idProduct} = req.params
+    const {productId} = req.params
     const {body} = req;
     try {
-        await ProductModel.updateProduct(body, idProduct);
+        await ProductModel.updateProduct(body, productId);
         res.status(201).json({
             message: 'UPDATE product succes',
             data: {
-                id: idProduct, 
+                id: productId, 
                 ...body
             },
         })
@@ -77,9 +77,9 @@ const updateProduct = async (req, res) => {
 }
 
 const deleteProduct = async (req, res) => {
-    const {idProduct} = req.params;
+    const {productId} = req.params;
     try {
-        await ProductModel.deleteProduct(idProduct);   
+        await ProductModel.deleteProduct(productId);   
         res.json({
             message: 'DELETE product succes',
             data: null

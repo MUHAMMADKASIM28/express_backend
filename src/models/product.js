@@ -1,4 +1,5 @@
 const dbpool = require('../config/database');
+const { v4: uuidv4 } = require('uuid');
 
 const getAllProduct = () => {
     const SQLQuery = 'SELECT * FROM product';
@@ -6,29 +7,27 @@ const getAllProduct = () => {
     return dbpool.execute(SQLQuery);
 }
 
-const getProductById = (idProduct) => {
-    const SQLQuery = `SELECT * FROM product WHERE id=${idProduct}`;
+const getProductById = (productId) => {
+    const SQLQuery = `SELECT * FROM product WHERE id='${productId}'`; 
     return dbpool.execute(SQLQuery);
 }
 
-const createNewProduct = async (body) => {
-    const SQLQuery = `INSERT INTO product (name, price, description) 
-                      VALUES ('${body.name}', ${body.price}, '${body.description}')`;
-
+const createNewProduct = (body) => {
+    const id = uuidv4(); 
+    const SQLQuery = `INSERT INTO product (id, name, price, description) 
+                      VALUES ('${id}', '${body.name}', ${body.price}, '${body.description}')`;
     return dbpool.execute(SQLQuery);
 }
 
-const updateProduct = (body, idProduct) => {
+const updateProduct = (body, productId) => {
     const SQLQuery = `UPDATE product 
                       SET name='${body.name}', price=${body.price}, description='${body.description}'
-                      WHERE id=${idProduct}`;
-
+                      WHERE id='${productId}'`; 
     return dbpool.execute(SQLQuery);
 }
 
-const deleteProduct = (idProduct) => {
-    const SQLQuery = `DELETE FROM product WHERE id=${idProduct}`;
-
+const deleteProduct = (productId) => {
+    const SQLQuery = `DELETE FROM product WHERE id='${productId}'`; 
     return dbpool.execute(SQLQuery);
 }
 

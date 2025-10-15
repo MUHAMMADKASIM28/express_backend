@@ -1,6 +1,5 @@
 const UserModel = require('../models/users')
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const getAllUsers = async (req, res) => {
     try {
@@ -19,9 +18,9 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-    const { idUser } = req.params;
+    const { userId } = req.params;
     try {
-        const [data] = await UserModel.getUserById(idUser);
+        const [data] = await UserModel.getUserById(userId);
 
         if (data.length === 0) {
             return res.status(404).json({
@@ -89,7 +88,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const { username, password } = req.body;
-
     try {
         const [users] = await UserModel.findUserByUsername(username);
         if (users.length === 0) {
@@ -98,36 +96,44 @@ const login = async (req, res) => {
 
         const user = users[0];
         const isPasswordMatch = await bcrypt.compare(password, user.password);
-
         if (!isPasswordMatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
+        
+        // Buat array dari string permissions
+        const permissions = user.permissions ? user.permissions.split(',') : [];
 
-        const token = jwt.sign({ id: user.id, username: user.username, role: user.role.trim() }, process.env.JWT_SECRET, {
-            expiresIn: '1h'
-        });
+        // Simpan data ke sesi, bukan membuat token JWT
+        req.session.user = {
+            userId: user.id,
+            username: user.username,
+            role: user.role,
+            permissions: permissions
+        };
 
-        res.json({
+        res.status(200).json({
             message: "Login successful",
-            token: token
+            user: req.session.user
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error.message,
-        })
+        res.status(500).json({ message: 'Server Error', serverMessage: error.message });
     }
-}
-
-const logout = (req, res) => {
-    res.status(200).json({
-        message: 'Logout successful. Please clear the token on the client-side.'
-    });
 };
 
+const logout = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: "Could not log out, please try again." });
+        } else {
+            res.clearCookie('connect.sid'); 
+            return res.status(200).json({ message: "Logout successful" });
+        }
+    });
+}
+
 const updateUser = async (req, res) => {
-    const { idUser } = req.params;
+    const { userId } = req.params;
     const { body } = req;
 
     try {
@@ -135,7 +141,7 @@ const updateUser = async (req, res) => {
             const hashedPassword = await bcrypt.hash(body.password, 10);
             body.password = hashedPassword;
         }
-        await UserModel.updateUser(body, idUser);
+        await UserModel.updateUser(body, userId);
 
         const responseData = { ...body };
         delete responseData.password;
@@ -143,7 +149,7 @@ const updateUser = async (req, res) => {
         res.status(201).json({
             message: 'UPDATE user success',
             data: {
-                id: idUser,
+                id: userId,
                 ...responseData
             },
         });
@@ -156,9 +162,9 @@ const updateUser = async (req, res) => {
 }
 
 const deleteUser = async (req, res) => {
-    const { idUser } = req.params;
+    const { userId } = req.params;
     try {
-        await UserModel.deleteUser(idUser);
+        await UserModel.deleteUser(userId);
         res.json({
             message: 'DELETE user succes',
             data: null

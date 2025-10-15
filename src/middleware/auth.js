@@ -1,20 +1,9 @@
-const jwt = require('jsonwebtoken');
-
-const verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token == null) {
-        return res.status(401).json({ message: "Unauthorized" });
+const isAuthenticated = (req, res, next) => {
+    if (req.session && req.session.user) {
+        return next();
+    } else {
+        return res.status(401).json({ message: 'Unauthorized: You must be logged in.' });
     }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.status(403).json({ message: "Forbidden" });
-        }
-        req.user = user;
-        next();
-    });
 };
 
-module.exports = verifyToken;
+module.exports = isAuthenticated;
